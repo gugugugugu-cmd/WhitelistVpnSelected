@@ -37,4 +37,5 @@
         android:id="@+id/appCheck"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
+        
 </LinearLayout>
