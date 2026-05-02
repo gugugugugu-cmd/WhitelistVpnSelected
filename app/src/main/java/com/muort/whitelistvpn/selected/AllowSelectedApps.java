@@ -19,6 +19,8 @@ public class AllowSelectedApps implements IXposedHookLoadPackage {
 
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
+        XposedBridge.log("WhitelistVpnSelected loaded: " + lpparam.packageName);
+
         try {
             XposedHelpers.findAndHookMethod(
                     "android.net.VpnService$Builder",
@@ -27,9 +29,14 @@ public class AllowSelectedApps implements IXposedHookLoadPackage {
                     new XC_MethodHook() {
                         @Override
                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                            XposedBridge.log("WhitelistVpnSelected establish hooked in: " + lpparam.packageName);
+
                             try {
                                 Application app = AndroidAppHelper.currentApplication();
-                                if (app == null) return;
+                                if (app == null) {
+                                    XposedBridge.log("WhitelistVpnSelected currentApplication is null");
+                                    return;
+                                }
 
                                 Object builder = param.thisObject;
 
@@ -38,6 +45,9 @@ public class AllowSelectedApps implements IXposedHookLoadPackage {
 
                                 Set<String> selected =
                                         prefs.getStringSet(Config.KEY_SELECTED_PACKAGES, null);
+
+                                XposedBridge.log("WhitelistVpnSelected selected count = "
+                                        + (selected == null ? -1 : selected.size()));
 
                                 if (selected == null || selected.isEmpty()) {
                                     return;
@@ -49,12 +59,10 @@ public class AllowSelectedApps implements IXposedHookLoadPackage {
                                     }
 
                                     try {
-                                        XposedHelpers.callMethod(
-                                                builder,
-                                                "addAllowedApplication",
-                                                pkg
-                                        );
-                                    } catch (Throwable ignored) {
+                                        XposedHelpers.callMethod(builder, "addAllowedApplication", pkg);
+                                        XposedBridge.log("WhitelistVpnSelected added: " + pkg);
+                                    } catch (Throwable t) {
+                                        XposedBridge.log("WhitelistVpnSelected add failed: " + pkg + " -> " + t);
                                     }
                                 }
                             } catch (Throwable t) {
