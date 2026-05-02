@@ -7,20 +7,14 @@ import java.util.Set;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 public class AllowSelectedApps implements IXposedHookLoadPackage {
 
-    private static final String MODULE_PACKAGE = "com.muort.whitelistvpn.selected";
-    private static final String PREF_NAME = "config";
-
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
-        XposedBridge.log("WhitelistVpnSelected loaded: " + lpparam.packageName);
-
         try {
             XposedHelpers.findAndHookMethod(
                     "android.net.VpnService$Builder",
@@ -29,26 +23,13 @@ public class AllowSelectedApps implements IXposedHookLoadPackage {
                     new XC_MethodHook() {
                         @Override
                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                            XposedBridge.log("WhitelistVpnSelected establish hooked in: " + lpparam.packageName);
-
                             try {
                                 Application app = AndroidAppHelper.currentApplication();
-                                if (app == null) {
-                                    XposedBridge.log("WhitelistVpnSelected currentApplication is null");
-                                    return;
-                                }
+                                if (app == null) return;
 
                                 Object builder = param.thisObject;
 
-                                XSharedPreferences prefs = new XSharedPreferences(MODULE_PACKAGE, PREF_NAME);
-                                prefs.reload();
-
-                                Set<String> selected =
-                                        prefs.getStringSet(Config.KEY_SELECTED_PACKAGES, null);
-
-                                XposedBridge.log("WhitelistVpnSelected selected count = "
-                                        + (selected == null ? -1 : selected.size()));
-
+                                Set<String> selected = Config.getSelectedPackages();
                                 if (selected == null || selected.isEmpty()) {
                                     return;
                                 }
@@ -59,10 +40,12 @@ public class AllowSelectedApps implements IXposedHookLoadPackage {
                                     }
 
                                     try {
-                                        XposedHelpers.callMethod(builder, "addAllowedApplication", pkg);
-                                        XposedBridge.log("WhitelistVpnSelected added: " + pkg);
-                                    } catch (Throwable t) {
-                                        XposedBridge.log("WhitelistVpnSelected add failed: " + pkg + " -> " + t);
+                                        XposedHelpers.callMethod(
+                                                builder,
+                                                "addAllowedApplication",
+                                                pkg
+                                        );
+                                    } catch (Throwable ignored) {
                                     }
                                 }
                             } catch (Throwable t) {

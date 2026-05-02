@@ -12,6 +12,7 @@ import java.util.Set;
 public class MainActivity extends AppCompatActivity {
 
     private TextView tvSelectedCount;
+    private TextView tvPath;
     private Button btnSelectApps;
     private Button btnClearSelected;
 
@@ -21,14 +22,17 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         tvSelectedCount = findViewById(R.id.tvSelectedCount);
+        tvPath = findViewById(R.id.tvPath);
         btnSelectApps = findViewById(R.id.btnSelectApps);
         btnClearSelected = findViewById(R.id.btnClearSelected);
+
+        tvPath.setText("配置文件：\n" + Config.getConfigFile().getAbsolutePath());
 
         btnSelectApps.setOnClickListener(v ->
                 startActivity(new Intent(this, AppSelectActivity.class)));
 
         btnClearSelected.setOnClickListener(v -> {
-            Config.clearSelectedPackages(this);
+            Config.clearSelectedPackages();
             updateSelectedCount();
         });
     }
@@ -40,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateSelectedCount() {
-        Set<String> selected = Config.getSelectedPackages(this);
+        Set<String> selected = Config.getSelectedPackages();
         tvSelectedCount.setText("已选择：" + selected.size());
     }
 }

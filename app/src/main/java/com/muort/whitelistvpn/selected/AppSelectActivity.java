@@ -58,7 +58,7 @@ public class AppSelectActivity extends AppCompatActivity {
 
     private void loadApps() {
         PackageManager pm = getPackageManager();
-        Set<String> selected = Config.getSelectedPackages(this);
+        Set<String> selected = Config.getSelectedPackages();
 
         List<ApplicationInfo> installed = pm.getInstalledApplications(PackageManager.GET_META_DATA);
         for (ApplicationInfo ai : installed) {
@@ -84,7 +84,7 @@ public class AppSelectActivity extends AppCompatActivity {
             }
         }
 
-        Config.setSelectedPackages(this, selected);
+        Config.setSelectedPackages(selected);
         finish();
     }
 }
