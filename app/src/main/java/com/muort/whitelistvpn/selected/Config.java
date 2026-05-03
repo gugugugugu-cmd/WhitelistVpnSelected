@@ -21,7 +21,7 @@ public class Config {
 
     public static File getBaseDir() {
         return new File(Environment.getExternalStorageDirectory(),
-                "Android/media/" + DIR_NAME);
+             "WhitelistVpnSelected");
     }
 
     public static File getConfigFile() {
