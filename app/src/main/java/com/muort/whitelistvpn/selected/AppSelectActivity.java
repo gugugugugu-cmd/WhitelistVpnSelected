@@ -3,6 +3,7 @@ package com.muort.whitelistvpn.selected;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.widget.Button;
@@ -12,7 +13,7 @@ import android.widget.ListView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -27,6 +28,7 @@ public class AppSelectActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.i(Config.TAG, "AppSelectActivity onCreate()");
         setContentView(R.layout.activity_app_select);
 
         listView = findViewById(R.id.listViewApps);
@@ -45,7 +47,9 @@ public class AppSelectActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                adapter.filter(s == null ? "" : s.toString());
+                String keyword = s == null ? "" : s.toString();
+                Log.i(Config.TAG, "AppSelectActivity filter keyword=" + keyword);
+                adapter.filter(keyword);
             }
 
             @Override
@@ -59,8 +63,11 @@ public class AppSelectActivity extends AppCompatActivity {
     private void loadApps() {
         PackageManager pm = getPackageManager();
         Set<String> selected = Config.getSelectedPackages();
+        Log.i(Config.TAG, "AppSelectActivity loadApps() selected count=" + selected.size());
 
         List<ApplicationInfo> installed = pm.getInstalledApplications(PackageManager.GET_META_DATA);
+        Log.i(Config.TAG, "AppSelectActivity installed app count=" + installed.size());
+
         for (ApplicationInfo ai : installed) {
             String label = String.valueOf(pm.getApplicationLabel(ai));
             String pkg = ai.packageName;
@@ -74,17 +81,24 @@ public class AppSelectActivity extends AppCompatActivity {
         }
 
         appList.sort((a, b) -> a.appName.compareToIgnoreCase(b.appName));
+        Log.i(Config.TAG, "AppSelectActivity loadApps() final list count=" + appList.size());
     }
 
     private void saveSelection() {
-        Set<String> selected = new HashSet<>();
+        Set<String> selected = new LinkedHashSet<>();
         for (AppInfo app : adapter.getOriginalApps()) {
             if (app.checked) {
                 selected.add(app.packageName);
+                Log.i(Config.TAG, "AppSelectActivity save selected pkg=" + app.packageName);
             }
         }
 
+        Log.i(Config.TAG, "AppSelectActivity saveSelection() count=" + selected.size());
         Config.setSelectedPackages(selected);
+
+        Set<String> verify = Config.getSelectedPackages();
+        Log.i(Config.TAG, "AppSelectActivity verify saved count=" + verify.size());
+
         finish();
     }
 }
