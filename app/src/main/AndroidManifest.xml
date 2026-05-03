@@ -10,6 +10,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.WhitelistVpnSelected">
 
+        <provider
+            android:name=".SelectedAppsProvider"
+            android:authorities="com.muort.whitelistvpn.selected.provider"
+            android:exported="true" />
+
         <activity
             android:name=".AppSelectActivity"
             android:exported="false" />

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -13,7 +14,6 @@ import java.util.Set;
 public class MainActivity extends AppCompatActivity {
 
     private TextView tvSelectedCount;
-    private TextView tvPath;
     private Button btnSelectApps;
     private Button btnClearSelected;
 
@@ -24,13 +24,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         tvSelectedCount = findViewById(R.id.tvSelectedCount);
-        tvPath = findViewById(R.id.tvPath);
         btnSelectApps = findViewById(R.id.btnSelectApps);
         btnClearSelected = findViewById(R.id.btnClearSelected);
-
-        String path = Config.getConfigFile().getAbsolutePath();
-        tvPath.setText("配置文件：\n" + path);
-        Log.i(Config.TAG, "MainActivity config path=" + path);
 
         btnSelectApps.setOnClickListener(v -> {
             Log.i(Config.TAG, "MainActivity open AppSelectActivity");
@@ -38,8 +33,12 @@ public class MainActivity extends AppCompatActivity {
         });
 
         btnClearSelected.setOnClickListener(v -> {
-            Log.i(Config.TAG, "MainActivity clear selected clicked");
-            Config.clearSelectedPackages();
+            boolean ok = Config.clearSelectedPackages(this);
+            if (ok) {
+                Toast.makeText(this, "已清空", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "清空失败", Toast.LENGTH_SHORT).show();
+            }
             updateSelectedCount();
         });
     }
@@ -52,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateSelectedCount() {
-        Set<String> selected = Config.getSelectedPackages();
+        Set<String> selected = Config.getSelectedPackages(this);
         Log.i(Config.TAG, "MainActivity updateSelectedCount() count=" + selected.size());
         tvSelectedCount.setText("已选择：" + selected.size());
     }

@@ -63,7 +63,7 @@ public class AppSelectActivity extends AppCompatActivity {
 
     private void loadApps() {
         PackageManager pm = getPackageManager();
-        Set<String> selected = Config.getSelectedPackages();
+        Set<String> selected = Config.getSelectedPackages(this);
         Log.i(Config.TAG, "AppSelectActivity loadApps() selected count=" + selected.size());
 
         List<ApplicationInfo> installed = pm.getInstalledApplications(PackageManager.GET_META_DATA);
@@ -97,12 +97,10 @@ public class AppSelectActivity extends AppCompatActivity {
 
         Log.i(Config.TAG, "AppSelectActivity saveSelection() count=" + selected.size());
 
-        boolean ok = Config.setSelectedPackages(selected);
+        boolean ok = Config.setSelectedPackages(this, selected);
         Log.i(Config.TAG, "AppSelectActivity saveSelection() result=" + ok);
 
         if (ok) {
-            Set<String> verify = Config.getSelectedPackages();
-            Log.i(Config.TAG, "AppSelectActivity verify saved count=" + verify.size());
             Toast.makeText(this, "保存成功", Toast.LENGTH_SHORT).show();
             finish();
         } else {
