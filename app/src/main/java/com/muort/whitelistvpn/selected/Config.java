@@ -19,7 +19,7 @@ public class Config {
 
     public static File getBaseDir() {
         return new File(Environment.getExternalStorageDirectory(),
-                "WhitelistVpnSelected");
+                "Download/WhitelistVpnSelected");
     }
 
     public static File getConfigFile() {
