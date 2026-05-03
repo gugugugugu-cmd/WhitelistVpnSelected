@@ -3,12 +3,13 @@ package com.muort.whitelistvpn.selected;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -86,6 +87,7 @@ public class AppSelectActivity extends AppCompatActivity {
 
     private void saveSelection() {
         Set<String> selected = new LinkedHashSet<>();
+
         for (AppInfo app : adapter.getOriginalApps()) {
             if (app.checked) {
                 selected.add(app.packageName);
@@ -94,11 +96,17 @@ public class AppSelectActivity extends AppCompatActivity {
         }
 
         Log.i(Config.TAG, "AppSelectActivity saveSelection() count=" + selected.size());
-        Config.setSelectedPackages(selected);
 
-        Set<String> verify = Config.getSelectedPackages();
-        Log.i(Config.TAG, "AppSelectActivity verify saved count=" + verify.size());
+        boolean ok = Config.setSelectedPackages(selected);
+        Log.i(Config.TAG, "AppSelectActivity saveSelection() result=" + ok);
 
-        finish();
+        if (ok) {
+            Set<String> verify = Config.getSelectedPackages();
+            Log.i(Config.TAG, "AppSelectActivity verify saved count=" + verify.size());
+            Toast.makeText(this, "保存成功", Toast.LENGTH_SHORT).show();
+            finish();
+        } else {
+            Toast.makeText(this, "保存失败，请查看日志", Toast.LENGTH_LONG).show();
+        }
     }
 }

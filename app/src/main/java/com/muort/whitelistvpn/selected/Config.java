@@ -15,13 +15,11 @@ import java.util.Set;
 public class Config {
 
     public static final String TAG = "WhitelistVpnSelected";
-    public static final String MODULE_PACKAGE = "com.muort.whitelistvpn.selected";
-    public static final String DIR_NAME = MODULE_PACKAGE;
     public static final String FILE_NAME = "selected_apps.txt";
 
     public static File getBaseDir() {
         return new File(Environment.getExternalStorageDirectory(),
-             "WhitelistVpnSelected");
+                "WhitelistVpnSelected");
     }
 
     public static File getConfigFile() {
@@ -62,13 +60,18 @@ public class Config {
         return result;
     }
 
-    public static void setSelectedPackages(Set<String> packages) {
+    public static boolean setSelectedPackages(Set<String> packages) {
         File dir = getBaseDir();
         Log.i(TAG, "setSelectedPackages() dir=" + dir.getAbsolutePath());
 
         if (!dir.exists()) {
             boolean mkdirs = dir.mkdirs();
             Log.i(TAG, "setSelectedPackages() mkdirs=" + mkdirs);
+
+            if (!mkdirs && !dir.exists()) {
+                Log.e(TAG, "setSelectedPackages() mkdirs failed");
+                return false;
+            }
         } else {
             Log.i(TAG, "setSelectedPackages() dir already exists");
         }
@@ -78,10 +81,12 @@ public class Config {
 
         StringBuilder sb = new StringBuilder();
         int count = 0;
+
         for (String pkg : packages) {
             if (pkg == null) continue;
             pkg = pkg.trim();
             if (pkg.isEmpty()) continue;
+
             sb.append(pkg).append('\n');
             count++;
             Log.i(TAG, "setSelectedPackages() write pkg=" + pkg);
@@ -90,15 +95,19 @@ public class Config {
         try (FileOutputStream fos = new FileOutputStream(file, false)) {
             fos.write(sb.toString().getBytes(StandardCharsets.UTF_8));
             fos.flush();
+
             Log.i(TAG, "setSelectedPackages() success, count=" + count
                     + ", exists=" + file.exists()
                     + ", length=" + file.length());
+
+            return true;
         } catch (Throwable t) {
             Log.e(TAG, "setSelectedPackages() failed: " + t, t);
+            return false;
         }
     }
 
-    public static void clearSelectedPackages() {
+    public static boolean clearSelectedPackages() {
         File file = getConfigFile();
         Log.i(TAG, "clearSelectedPackages() file=" + file.getAbsolutePath()
                 + ", exists=" + file.exists());
@@ -106,6 +115,9 @@ public class Config {
         if (file.exists()) {
             boolean deleted = file.delete();
             Log.i(TAG, "clearSelectedPackages() deleted=" + deleted);
+            return deleted;
         }
+
+        return true;
     }
 }
